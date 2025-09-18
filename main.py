@@ -63,13 +63,13 @@ class Ball:
         # self.pos = Point(pos[0], pos[1])
 
         if self.pos_in_gut < 0:
-            self.vel = - self.vel / 1.2
+            self.vel = - 0 *self.vel / 1
             self.accel = 0
             self.pos_in_gut = 0
             self.pos = Point(self.pos_in_gut * cos(gut.angle) + gut.fixed_end.x,
                              self.pos_in_gut * sin(gut.angle) + gut.fixed_end.y)
         if self.pos_in_gut > gut.length:
-            self.vel = - self.vel / 1.2
+            self.vel = - 0 * self.vel / 1
             self.accel = 0
             self.pos_in_gut = gut.length
             self.pos = Point(self.pos_in_gut * cos(gut.angle) + gut.fixed_end.x,
@@ -113,7 +113,7 @@ while run:
         flag = not flag
     if flag:
         k += om * dt
-    else:
+    elif not flag:
         k -= om * dt
 
     gutter.set_angle(k / 180 * pi)
