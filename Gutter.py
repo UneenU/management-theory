@@ -3,7 +3,7 @@ import random
 import pygame
 import numpy as np
 
-metr = 4400
+metr = 1000
 g = 9.8
 
 
@@ -50,6 +50,12 @@ class Ball:
         self.pos = Point(pos_in_gut * cos(gut.angle) + gut.fixed_end.x,
                          pos_in_gut * sin(gut.angle) + gut.fixed_end.y)
 
+    def params(self):
+        s = [f'ускорение: {self.accel / metr};',
+             f'скорость: {self.vel / metr};',
+             f'положение в жёлобе: {self.pos_in_gut / metr}']
+        return s
+
     def update(self, gut: Gutter, t):
         global g
         global metr
@@ -63,14 +69,12 @@ class Ball:
         # self.pos = Point(pos[0], pos[1])
 
         if self.pos_in_gut < 0:
-            self.vel = - 0 *self.vel / 1
-            self.accel = 0
+            self.vel = - self.vel / 1.2
             self.pos_in_gut = 0
             self.pos = Point(self.pos_in_gut * cos(gut.angle) + gut.fixed_end.x,
                              self.pos_in_gut * sin(gut.angle) + gut.fixed_end.y)
         if self.pos_in_gut > gut.length:
-            self.vel = - 0 * self.vel / 1
-            self.accel = 0
+            self.vel = - self.vel / 1.2
             self.pos_in_gut = gut.length
             self.pos = Point(self.pos_in_gut * cos(gut.angle) + gut.fixed_end.x,
                              self.pos_in_gut * sin(gut.angle) + gut.fixed_end.y)
@@ -86,16 +90,17 @@ BLACK = (0, 0, 0)
 
 p0 = Point(0, 0)
 # определение желоба
-gutter = Gutter(Point(-700, 100), 0.3 * metr, 0)
+gutter = Gutter(Point(-0.5 * metr, 0.0 * metr), 1 * metr, 0)
 om = 2
 # определение шара
-radius = 30
+radius = 0.025 * metr
 ball = Ball(0, radius, 1, gutter)
 
 # ---Инциализация---
 pygame.init()
 clock = pygame.time.Clock()
 sc = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+f1 = pygame.font.Font(None, 30)
 # ---Главный игровой цикл---
 run = True
 k = 0
@@ -108,7 +113,6 @@ while run:
 
     dt = clock.get_time() / 1000
     t += dt
-    print(t)
     if k > 5 and flag or k < -4 and not flag:
         flag = not flag
     if flag:
@@ -124,17 +128,28 @@ while run:
     pygame.draw.line(sc, BLACK, (-10000, WIN_HEIGHT / 2),
                      (10000, WIN_HEIGHT / 2))
     pygame.draw.line(sc, BLACK, (WIN_WIDTH / 2, -10000), (WIN_WIDTH / 2, 10000))
-    for i in range(-5, 6):
+    for i in range(-20, 20):
+        s = f1.render(f'{round(i*0.1, 2)}', True, (0, 0, 0))
+        sc.blit(s, (WIN_WIDTH / 2 + i * 0.1 * metr, WIN_HEIGHT / 2))
+        sc.blit(s, (WIN_WIDTH / 2, WIN_HEIGHT / 2 - i * 0.1 * metr))
         pygame.draw.circle(sc, BLACK,
-                           (WIN_WIDTH / 2 + i * metr, WIN_HEIGHT / 2), 3)
+                           (WIN_WIDTH / 2 + i * 0.1 * metr, WIN_HEIGHT / 2), 3)
         pygame.draw.circle(sc, BLACK,
-                           (WIN_WIDTH / 2, WIN_HEIGHT / 2 + i * metr), 3)
+                           (WIN_WIDTH / 2, WIN_HEIGHT / 2 + i * 0.1 * metr), 3)
     # желоб и шар
     pygame.draw.line(sc, ORANGE, gutter.fixed_end.pos_in_win(sc).to_tuple(),
-                     gutter.moving_end.pos_in_win(sc).to_tuple(), 18)
+                     gutter.moving_end.pos_in_win(sc).to_tuple(),
+                     int(0.05 * metr))
 
     pygame.draw.circle(sc, BLACK, ball.pos.pos_in_win(sc).to_tuple(),
                        ball.radius)
+
+    # вывод информации о шаре
+
+    for i in range(3):
+        s = f1.render(ball.params()[i], True, (0, 0, 0))
+        sc.blit(s, (10, 100+30*i))
+
     pygame.display.update()
 
     clock.tick(FPS)
